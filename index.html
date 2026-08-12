@@ -9,31 +9,61 @@
     color-scheme: light;
     --plane:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
     --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
-    --s1:#2a78d6; --s2:#eb6834; --aqua:#1baf7a;
+    --s1:#1f6b4a; --s2:#c98a12; --aqua:#1baf7a;
+    --accent:#1f6b4a; --accent-soft:#e6f0ea; --accent-ink:#12432e;
     --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
   }
   @media (prefers-color-scheme: dark){
     :root{
       color-scheme: dark;
-      --plane:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+      --plane:#0d0d0d; --surface:#181b15; --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
       --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
-      --s1:#3987e5; --s2:#d95926; --aqua:#199e70;
+      --s1:#57b98a; --s2:#d6a53f; --aqua:#199e70;
+      --accent:#57b98a; --accent-soft:#16281f; --accent-ink:#a8dcc3;
     }
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--plane);color:var(--ink);
     font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+  input,button{font:inherit;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--ink);padding:9px 12px}
+  button{cursor:pointer;font-weight:600}
+  button.primary{background:var(--accent);color:#fff;border-color:transparent}
+  a.link{color:var(--accent);cursor:pointer}
+
+  /* ---------- LOGIN ---------- */
+  #login{position:fixed;inset:0;display:grid;place-items:center;padding:20px;
+    background:
+      radial-gradient(90% 60% at 100% 0, var(--accent-soft) 0%, transparent 55%),
+      var(--plane);}
+  .lg-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;padding:30px 28px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
+  .lg-brand{font-weight:800;letter-spacing:.02em;color:var(--accent-ink);font-size:15px}
+  .lg-brand small{display:block;font-weight:600;font-size:9px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .lg-h{font-size:21px;font-weight:700;margin:22px 0 4px;letter-spacing:-.01em}
+  .lg-sub{font-size:13.5px;color:var(--ink2);margin-bottom:20px}
+  .lg-label{font-size:12px;font-weight:600;color:var(--ink2);display:block;margin:14px 0 6px}
+  #login input{width:100%}
+  .lg-btn{width:100%;margin-top:18px;padding:11px}
+  .lg-err{color:var(--critical);font-size:13px;margin-top:12px;min-height:18px}
+  .lg-adv{margin-top:16px;font-size:12.5px}
+  .lg-adv summary{cursor:pointer;color:var(--muted);list-style:none}
+  .lg-adv summary::-webkit-details-marker{display:none}
+  .lg-foot{margin-top:22px;text-align:center;font-size:12.5px;color:var(--muted)}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);
+    border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ---------- APP ---------- */
   .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
+  header.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
   h1{font-size:20px;margin:0;letter-spacing:-.01em}
   .sub{color:var(--ink2);font-size:13px;margin:2px 0 0}
   .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  input,button{font:inherit;border-radius:8px;border:1px solid var(--border);
-    background:var(--surface);color:var(--ink);padding:8px 12px}
-  input{min-width:280px}
-  button{cursor:pointer;font-weight:600}
-  button.primary{background:var(--s1);color:#fff;border-color:transparent}
-  .status{font-size:12px;color:var(--muted)}
+  .who{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .who .dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+  .status{font-size:12px;color:var(--muted);margin-bottom:4px}
   .grid-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
   .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
   .tile .k{font-size:12px;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
@@ -64,21 +94,50 @@
   .bar-val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2)}
   svg{display:block;width:100%;height:auto;overflow:visible}
   .empty{color:var(--muted);font-size:13px;padding:18px 0;text-align:center}
-  a.link{color:var(--s1)}
+  .demo-banner{background:color-mix(in srgb,var(--warning) 18%,transparent);
+    border:1px solid color-mix(in srgb,var(--warning) 40%,transparent);color:var(--ink);
+    border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:14px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+
+<!-- ================= LOGIN ================= -->
+<div id="login">
+  <form class="lg-card" id="loginForm" autocomplete="off">
+    <div class="lg-brand">GRISOMAQ<small>Recursos Humanos · DP</small></div>
+    <div class="lg-h">Painel de Demandas</div>
+    <div class="lg-sub">Acesso restrito. Informe sua senha para continuar.</div>
+
+    <label class="lg-label" for="pw">Senha de acesso</label>
+    <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password">
+
+    <button type="submit" class="primary lg-btn" id="loginBtn">Entrar</button>
+    <div class="lg-err" id="loginErr"></div>
+
+    <details class="lg-adv" id="advBox">
+      <summary>Configurar servidor</summary>
+      <label class="lg-label" for="ep">URL do endpoint (n8n)</label>
+      <input type="text" id="ep" placeholder="https://SEU-N8N/webhook/grisomaq-dashboard">
+    </details>
+
+    <div class="lg-foot"><a class="link" id="demoLink">Ver demonstração</a></div>
+  </form>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="wrap" id="app" hidden>
+  <header class="top">
     <div>
       <h1>Painel de Demandas · RH e DP GRISOMAQ</h1>
-      <p class="sub">Acompanhamento em tempo real do atendimento do agente de IA no WhatsApp</p>
+      <p class="sub">Atendimento do agente de IA no WhatsApp</p>
     </div>
     <div class="toolbar">
-      <input id="endpoint" placeholder="URL do endpoint n8n (…/webhook/grisomaq-dashboard)">
-      <button class="primary" id="reload">Atualizar</button>
+      <span class="who" id="who"><span class="dot"></span>conectado</span>
+      <button id="reload">Atualizar</button>
+      <button id="logout">Sair</button>
     </div>
   </header>
+  <div class="demo-banner" id="demoBanner" hidden>Modo demonstração — dados de exemplo.</div>
   <div class="status" id="status">Carregando…</div>
 
   <div class="grid-tiles" id="tiles"></div>
@@ -106,11 +165,12 @@
 
 <script>
 const $ = s => document.querySelector(s);
-const EP_KEY = "grisomaq_dashboard_endpoint";
-const ep = $("#endpoint");
-ep.value = localStorage.getItem(EP_KEY) || "";
+const EP_KEY = "grisomaq_endpoint";
+const SESS_KEY = "grisomaq_key";           // sessionStorage: senha validada
+let AUTH = { url:"", key:"", demo:false };
+let refreshTimer = null;
 
-// ---- Dados de exemplo (mostrados até você conectar o endpoint real) ----
+// ---- Dados de exemplo ----
 const DEMO = {
   resumo:{total_atendimentos:128,abertos:14,em_andamento:6,resolvidos:108,
     escalados_humano:19,resolvidos_ia:97,pendencias_criticas:5,hoje:9,ultimos_7_dias:41},
@@ -119,17 +179,79 @@ const DEMO = {
     {tema:"Benefícios",total:12,abertos:1,escalados:1},{tema:"Admissão",total:8,abertos:0,escalados:0},
     {tema:"Dados",total:6,abertos:1,escalados:0}],
   por_dia:Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);
-    return{dia:d.toISOString().slice(0,10),total:Math.round(2+4*Math.random()+ (i>22?3:0)),escalados:Math.round(Math.random()*2)}}),
+    return{dia:d.toISOString().slice(0,10),total:Math.round(2+4*Math.random()+(i>22?3:0)),escalados:Math.round(Math.random()*2)}}),
   fila:[
     {protocolo:"AT-260804-a1b2",nome_informado:"José da Silva",setor:"LAVOURA",tema:"Pagamento",prioridade:"urgente",status:"aberto",escalado_humano:true,responsavel:"João Gabriel"},
     {protocolo:"AT-260804-c3d4",nome_informado:"Maria Souza",setor:"EMPRESA",tema:"Atestado",prioridade:"alta",status:"em_andamento",escalado_humano:false,responsavel:"Jeferson"},
     {protocolo:"AT-260804-e5f6",nome_informado:"Carlos Lima",setor:"LAVOURA",tema:"Férias",prioridade:"normal",status:"aberto",escalado_humano:false,responsavel:null}
   ],
-  gerado_em:new Date().toISOString(), _demo:true
+  gerado_em:new Date().toISOString()
 };
 
 function fmtDate(iso){const d=new Date(iso);return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function buildUrl(base,key){const u=new URL(base);u.searchParams.set("key",key);return u.toString()}
 
+// ---------- LOGIN ----------
+$("#ep").value = localStorage.getItem(EP_KEY) || "";
+if(!$("#ep").value) $("#advBox").open = true;
+
+$("#loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const url = $("#ep").value.trim();
+  const key = $("#pw").value;
+  const err = $("#loginErr");
+  err.textContent = "";
+  if(!url){ $("#advBox").open=true; err.textContent="Informe a URL do endpoint do n8n."; return; }
+  if(!key){ err.textContent="Digite a senha."; return; }
+  const btn = $("#loginBtn"); btn.disabled=true; btn.innerHTML='<span class="spin"></span>Entrando…';
+  try{
+    const res = await fetch(buildUrl(url,key), {headers:{Accept:"application/json"}});
+    if(res.status===401 || res.status===403){ err.textContent="Senha incorreta."; return; }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    localStorage.setItem(EP_KEY,url);
+    sessionStorage.setItem(SESS_KEY,key);
+    AUTH={url,key,demo:false};
+    enterApp(); paint(data,false);
+  }catch(ex){
+    err.textContent="Não foi possível conectar. Verifique a URL do servidor.";
+  }finally{
+    btn.disabled=false; btn.textContent="Entrar";
+  }
+});
+
+$("#demoLink").addEventListener("click", ()=>{ AUTH={url:"",key:"",demo:true}; enterApp(); paint(DEMO,true); });
+
+// ---------- APP ----------
+function enterApp(){
+  $("#login").style.display="none";
+  $("#app").hidden=false;
+  $("#demoBanner").hidden = !AUTH.demo;
+  $("#who").style.display = AUTH.demo ? "none":"flex";
+  if(!AUTH.demo){ clearInterval(refreshTimer); refreshTimer=setInterval(load, 60000); } // auto-refresh 60s
+}
+function logout(){
+  sessionStorage.removeItem(SESS_KEY);
+  clearInterval(refreshTimer);
+  location.reload();
+}
+$("#logout").addEventListener("click", logout);
+$("#reload").addEventListener("click", load);
+
+async function load(){
+  if(AUTH.demo){ paint(DEMO,true); return; }
+  $("#status").textContent="Atualizando…";
+  try{
+    const res=await fetch(buildUrl(AUTH.url,AUTH.key),{headers:{Accept:"application/json"}});
+    if(res.status===401||res.status===403){ logout(); return; }
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    paint(await res.json(), false);
+  }catch(e){
+    $("#status").textContent="Erro ao atualizar ("+e.message+").";
+  }
+}
+
+// ---------- RENDER ----------
 function renderTiles(r){
   const t=[
     {k:"Total de atendimentos",v:r.total_atendimentos},
@@ -142,7 +264,6 @@ function renderTiles(r){
   $("#tiles").innerHTML=t.map(x=>`<div class="tile ${x.cls||''}"><div class="k">${x.k}</div>
     <div class="v">${x.v??0}${x.extra?` <small>${x.extra}</small>`:""}</div></div>`).join("");
 }
-
 function renderTemas(rows){
   const el=$("#temas");
   if(!rows||!rows.length){el.innerHTML='<div class="empty">Sem dados ainda.</div>';return}
@@ -152,7 +273,6 @@ function renderTemas(rows){
     <span class="bar-track"><span class="bar-fill" style="width:${(100*r.total/max).toFixed(1)}%"></span></span>
     <span class="bar-val">${r.total}</span></div>`).join("");
 }
-
 function renderSerie(rows){
   const el=$("#serie");
   if(!rows||!rows.length){el.innerHTML='<div class="empty">Sem dados ainda.</div>';return}
@@ -172,7 +292,6 @@ function renderSerie(rows){
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Volume diário de atendimentos">
     ${grid}${ticks}${line("total","var(--s1)")}${line("escalados","var(--s2)")}</svg>`;
 }
-
 function renderFila(rows){
   const el=$("#fila");
   if(!rows||!rows.length){el.innerHTML='<div class="empty">Nenhuma pendência aberta. 🎉</div>';return}
@@ -189,31 +308,18 @@ function renderFila(rows){
       <td>${r.responsavel||"—"}</td></tr>`).join("")}
   </tbody></table>`;
 }
-
 function paint(d,demo){
   renderTiles(d.resumo||{});renderTemas(d.temas||[]);renderSerie(d.por_dia||[]);renderFila(d.fila||[]);
-  $("#status").textContent=(demo?"⚠ Exibindo DADOS DE EXEMPLO — informe a URL do endpoint n8n e clique em Atualizar. ":"")
-    +"Atualizado: "+fmtDate(d.gerado_em||new Date().toISOString());
+  $("#demoBanner").hidden = !demo;
+  $("#status").textContent = "Atualizado: "+fmtDate(d.gerado_em||new Date().toISOString());
 }
 
-async function load(){
-  const url=ep.value.trim();
-  if(!url){paint(DEMO,true);return}
-  localStorage.setItem(EP_KEY,url);
-  $("#status").textContent="Carregando…";
-  try{
-    const res=await fetch(url,{headers:{Accept:"application/json"}});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const d=await res.json();
-    paint(d,!!d._demo);
-  }catch(e){
-    $("#status").textContent="Erro ao carregar ("+e.message+"). Exibindo dados de exemplo. Verifique a URL e o CORS do endpoint.";
-    paint(DEMO,true);
-  }
-}
-$("#reload").addEventListener("click",load);
-ep.addEventListener("keydown",e=>{if(e.key==="Enter")load()});
-load();
+// ---------- Sessão persistida ----------
+(function init(){
+  const url = localStorage.getItem(EP_KEY);
+  const key = sessionStorage.getItem(SESS_KEY);
+  if(url && key){ AUTH={url,key,demo:false}; enterApp(); load(); }
+})();
 </script>
 </body>
 </html>
