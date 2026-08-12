@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GRISOMAQ · Painel de Demandas de RH</title>
+<style>
+  :root{
+    color-scheme: light;
+    --plane:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --s1:#2a78d6; --s2:#eb6834; --aqua:#1baf7a;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      color-scheme: dark;
+      --plane:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+      --s1:#3987e5; --s2:#d95926; --aqua:#199e70;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--plane);color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 64px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:8px}
+  h1{font-size:20px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:13px;margin:2px 0 0}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input,button{font:inherit;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--ink);padding:8px 12px}
+  input{min-width:280px}
+  button{cursor:pointer;font-weight:600}
+  button.primary{background:var(--s1);color:#fff;border-color:transparent}
+  .status{font-size:12px;color:var(--muted)}
+  .grid-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+  .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+  .tile .k{font-size:12px;color:var(--ink2);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+  .tile .v{font-size:30px;font-weight:700;margin-top:6px;letter-spacing:-.02em}
+  .tile .v small{font-size:13px;font-weight:600;color:var(--muted)}
+  .tile.alert .v{color:var(--critical)}
+  .tile.good .v{color:var(--good)}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.cards{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+  .card h2{font-size:14px;margin:0 0 14px;font-weight:600}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--ink2);margin-bottom:8px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--grid)}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+  td.tab{font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .pill.urgente{background:color-mix(in srgb,var(--critical) 18%,transparent);color:var(--critical)}
+  .pill.alta{background:color-mix(in srgb,var(--serious) 22%,transparent);color:var(--serious)}
+  .pill.normal{background:color-mix(in srgb,var(--s1) 16%,transparent);color:var(--s1)}
+  .pill.baixa{background:color-mix(in srgb,var(--muted) 20%,transparent);color:var(--ink2)}
+  .tag-h{font-size:11px;font-weight:700;color:var(--critical)}
+  .card.full{grid-column:1/-1;margin-top:16px}
+  .bar-row{display:grid;grid-template-columns:130px 1fr 46px;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+  .bar-track{background:var(--grid);border-radius:6px;height:16px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:6px;background:var(--s1)}
+  .bar-val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2)}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .empty{color:var(--muted);font-size:13px;padding:18px 0;text-align:center}
+  a.link{color:var(--s1)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Painel de Demandas · RH e DP GRISOMAQ</h1>
+      <p class="sub">Acompanhamento em tempo real do atendimento do agente de IA no WhatsApp</p>
+    </div>
+    <div class="toolbar">
+      <input id="endpoint" placeholder="URL do endpoint n8n (…/webhook/grisomaq-dashboard)">
+      <button class="primary" id="reload">Atualizar</button>
+    </div>
+  </header>
+  <div class="status" id="status">Carregando…</div>
+
+  <div class="grid-tiles" id="tiles"></div>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Demandas por tema</h2>
+      <div id="temas"></div>
+    </div>
+    <div class="card">
+      <h2>Volume nos últimos 30 dias</h2>
+      <div class="legend">
+        <span><i style="background:var(--s1)"></i>Total</span>
+        <span><i style="background:var(--s2)"></i>Escalados ao humano</span>
+      </div>
+      <div id="serie"></div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <h2>Fila de pendências (prioridade → mais antigo)</h2>
+    <div id="fila"></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const EP_KEY = "grisomaq_dashboard_endpoint";
+const ep = $("#endpoint");
+ep.value = localStorage.getItem(EP_KEY) || "";
+
+// ---- Dados de exemplo (mostrados até você conectar o endpoint real) ----
+const DEMO = {
+  resumo:{total_atendimentos:128,abertos:14,em_andamento:6,resolvidos:108,
+    escalados_humano:19,resolvidos_ia:97,pendencias_criticas:5,hoje:9,ultimos_7_dias:41},
+  temas:[{tema:"Pagamento",total:38,abertos:6,escalados:9},{tema:"Atestado",total:27,abertos:3,escalados:2},
+    {tema:"Ponto",total:21,abertos:2,escalados:1},{tema:"Férias",total:16,abertos:1,escalados:0},
+    {tema:"Benefícios",total:12,abertos:1,escalados:1},{tema:"Admissão",total:8,abertos:0,escalados:0},
+    {tema:"Dados",total:6,abertos:1,escalados:0}],
+  por_dia:Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);
+    return{dia:d.toISOString().slice(0,10),total:Math.round(2+4*Math.random()+ (i>22?3:0)),escalados:Math.round(Math.random()*2)}}),
+  fila:[
+    {protocolo:"AT-260804-a1b2",nome_informado:"José da Silva",setor:"LAVOURA",tema:"Pagamento",prioridade:"urgente",status:"aberto",escalado_humano:true,responsavel:"João Gabriel"},
+    {protocolo:"AT-260804-c3d4",nome_informado:"Maria Souza",setor:"EMPRESA",tema:"Atestado",prioridade:"alta",status:"em_andamento",escalado_humano:false,responsavel:"Jeferson"},
+    {protocolo:"AT-260804-e5f6",nome_informado:"Carlos Lima",setor:"LAVOURA",tema:"Férias",prioridade:"normal",status:"aberto",escalado_humano:false,responsavel:null}
+  ],
+  gerado_em:new Date().toISOString(), _demo:true
+};
+
+function fmtDate(iso){const d=new Date(iso);return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}
+
+function renderTiles(r){
+  const t=[
+    {k:"Total de atendimentos",v:r.total_atendimentos},
+    {k:"Abertos",v:(r.abertos||0)+(r.em_andamento||0)},
+    {k:"Escalados ao humano",v:r.escalados_humano,cls:"alert"},
+    {k:"Resolvidos pela IA",v:r.resolvidos_ia,cls:"good",extra:r.total_atendimentos?Math.round(100*r.resolvidos_ia/r.total_atendimentos)+"%":""},
+    {k:"Pendências críticas",v:r.pendencias_criticas,cls:r.pendencias_criticas>0?"alert":""},
+    {k:"Abertos hoje",v:r.hoje}
+  ];
+  $("#tiles").innerHTML=t.map(x=>`<div class="tile ${x.cls||''}"><div class="k">${x.k}</div>
+    <div class="v">${x.v??0}${x.extra?` <small>${x.extra}</small>`:""}</div></div>`).join("");
+}
+
+function renderTemas(rows){
+  const el=$("#temas");
+  if(!rows||!rows.length){el.innerHTML='<div class="empty">Sem dados ainda.</div>';return}
+  const max=Math.max(...rows.map(r=>r.total),1);
+  el.innerHTML=rows.map(r=>`<div class="bar-row" title="${r.tema}: ${r.total} (abertos: ${r.abertos})">
+    <span>${r.tema}</span>
+    <span class="bar-track"><span class="bar-fill" style="width:${(100*r.total/max).toFixed(1)}%"></span></span>
+    <span class="bar-val">${r.total}</span></div>`).join("");
+}
+
+function renderSerie(rows){
+  const el=$("#serie");
+  if(!rows||!rows.length){el.innerHTML='<div class="empty">Sem dados ainda.</div>';return}
+  const W=520,H=200,pl=30,pr=10,pt=10,pb=22, iw=W-pl-pr, ih=H-pt-pb;
+  const max=Math.max(...rows.map(r=>r.total),1);
+  const x=i=>pl+(rows.length<=1?iw/2:iw*i/(rows.length-1));
+  const y=v=>pt+ih-ih*v/max;
+  const line=(key,color)=>{
+    const pts=rows.map((r,i)=>`${x(i).toFixed(1)},${y(r[key]||0).toFixed(1)}`).join(" ");
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  };
+  const grid=[0,.5,1].map(f=>{const gy=pt+ih-ih*f;const val=Math.round(max*f);
+    return `<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="var(--grid)"/>
+      <text x="${pl-6}" y="${gy+3}" text-anchor="end" font-size="10" fill="var(--muted)">${val}</text>`}).join("");
+  const ticks=rows.map((r,i)=>{ if(i%6!==0 && i!==rows.length-1) return "";
+    return `<text x="${x(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--muted)">${r.dia.slice(5)}</text>`}).join("");
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Volume diário de atendimentos">
+    ${grid}${ticks}${line("total","var(--s1)")}${line("escalados","var(--s2)")}</svg>`;
+}
+
+function renderFila(rows){
+  const el=$("#fila");
+  if(!rows||!rows.length){el.innerHTML='<div class="empty">Nenhuma pendência aberta. 🎉</div>';return}
+  el.innerHTML=`<table><thead><tr>
+    <th>Protocolo</th><th>Trabalhador</th><th>Setor</th><th>Tema</th>
+    <th>Prioridade</th><th>Status</th><th>Responsável</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr>
+      <td class="tab">${r.protocolo||"—"}${r.escalado_humano?' <span class="tag-h">● humano</span>':''}</td>
+      <td>${r.nome_informado||"—"}</td>
+      <td>${r.setor||"—"}</td>
+      <td>${r.tema||"—"}</td>
+      <td><span class="pill ${r.prioridade||'normal'}">${r.prioridade||'normal'}</span></td>
+      <td>${(r.status||'').replace('_',' ')}</td>
+      <td>${r.responsavel||"—"}</td></tr>`).join("")}
+  </tbody></table>`;
+}
+
+function paint(d,demo){
+  renderTiles(d.resumo||{});renderTemas(d.temas||[]);renderSerie(d.por_dia||[]);renderFila(d.fila||[]);
+  $("#status").textContent=(demo?"⚠ Exibindo DADOS DE EXEMPLO — informe a URL do endpoint n8n e clique em Atualizar. ":"")
+    +"Atualizado: "+fmtDate(d.gerado_em||new Date().toISOString());
+}
+
+async function load(){
+  const url=ep.value.trim();
+  if(!url){paint(DEMO,true);return}
+  localStorage.setItem(EP_KEY,url);
+  $("#status").textContent="Carregando…";
+  try{
+    const res=await fetch(url,{headers:{Accept:"application/json"}});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const d=await res.json();
+    paint(d,!!d._demo);
+  }catch(e){
+    $("#status").textContent="Erro ao carregar ("+e.message+"). Exibindo dados de exemplo. Verifique a URL e o CORS do endpoint.";
+    paint(DEMO,true);
+  }
+}
+$("#reload").addEventListener("click",load);
+ep.addEventListener("keydown",e=>{if(e.key==="Enter")load()});
+load();
+</script>
+</body>
+</html>
