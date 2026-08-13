@@ -215,11 +215,6 @@
     <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password">
     <button type="submit" class="primary lg-btn" id="loginBtn">Entrar</button>
     <div class="lg-err" id="loginErr"></div>
-    <details class="lg-adv" id="advBox">
-      <summary>Configurar servidor</summary>
-      <label class="lg-label" for="ep">URL do endpoint (n8n)</label>
-      <input type="text" id="ep" placeholder="https://SEU-N8N/webhook/grisomaq-dashboard">
-    </details>
     <div class="lg-foot"><a class="link" id="demoLink">Ver demonstração</a></div>
     <div class="rows" id="rowsLogin" aria-hidden="true"></div>
   </form>
@@ -316,7 +311,13 @@
 
 <script>
 const $ = s => document.querySelector(s);
-const EP_KEY="grisomaq_endpoint", SESS_KEY="grisomaq_key", THEME_KEY="grisomaq_theme";
+
+/* =================== CONFIGURAÇÃO =================== */
+/* URL do endpoint de leitura do n8n. Se o domínio mudar, edite só esta linha. */
+const ENDPOINT = "https://SEU-N8N/webhook/grisomaq-dashboard";
+/* =================================================== */
+
+const SESS_KEY="grisomaq_key", THEME_KEY="grisomaq_theme";
 let AUTH={url:"",key:"",demo:false};
 let FILTER={dias:"30",setor:""};
 let LAST={}; let SEARCH=""; let refreshTimer=null; let curProto=null;
@@ -378,22 +379,19 @@ $("#themeBtn").addEventListener("click",()=>{
 });
 
 /* ---------- Login ---------- */
-$("#ep").value=localStorage.getItem(EP_KEY)||"";
-if(!$("#ep").value) $("#advBox").open=true;
 $("#loginForm").addEventListener("submit",async e=>{
   e.preventDefault();
-  const url=$("#ep").value.trim(), key=$("#pw").value, err=$("#loginErr"); err.textContent="";
-  if(!url){$("#advBox").open=true;err.textContent="Informe a URL do endpoint do n8n.";return;}
+  const key=$("#pw").value, err=$("#loginErr"); err.textContent="";
   if(!key){err.textContent="Digite a senha.";return;}
   const btn=$("#loginBtn");btn.disabled=true;btn.innerHTML='<span class="spin"></span>Entrando…';
   try{
-    const u=new URL(url);u.searchParams.set("key",key);
+    const u=new URL(ENDPOINT);u.searchParams.set("key",key);
     const res=await fetch(u.toString(),{headers:{Accept:"application/json"}});
     if(res.status===401||res.status===403){err.textContent="Senha incorreta.";return;}
     if(!res.ok) throw new Error("HTTP "+res.status);
     await res.json();
-    localStorage.setItem(EP_KEY,url); sessionStorage.setItem(SESS_KEY,key);
-    AUTH={url,key,demo:false}; enterApp(); fetchDash();
+    sessionStorage.setItem(SESS_KEY,key);
+    AUTH={url:ENDPOINT,key,demo:false}; enterApp(); fetchDash();
   }catch(ex){ err.textContent="Não foi possível conectar. Verifique a URL do servidor."; }
   finally{ btn.disabled=false; btn.textContent="Entrar"; }
 });
@@ -591,8 +589,8 @@ function renderDrawer(a,conversa){
 
 /* ---------- Sessão persistida ---------- */
 paintAllRows();
-(function init(){const url=localStorage.getItem(EP_KEY),key=sessionStorage.getItem(SESS_KEY);
-  if(url&&key){AUTH={url,key,demo:false};enterApp();fetchDash();}})();
+(function init(){const key=sessionStorage.getItem(SESS_KEY);
+  if(key){AUTH={url:ENDPOINT,key,demo:false};enterApp();fetchDash();}})();
 </script>
 </body>
 </html>
